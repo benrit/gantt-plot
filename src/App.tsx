@@ -1,4 +1,5 @@
 import useGnattPlot from "./components/GnattPlot";
+import './App.css';
 
 function App() {
 

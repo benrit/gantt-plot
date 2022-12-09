@@ -1,0 +1,18 @@
+.expander {
+    cursor: pointer;
+}
+
+
+
+.TreeNode rect{
+    fill: rgba(0,0,0,0.0);
+}
+
+
+.TreeNode:hover rect{
+    stroke: rgba(0,0,0, 1);
+}
+
+.TreeNode [data-selected="true"]{
+    fill: rgba(0,0,0, 0.1);
+}
