@@ -1,17 +1,22 @@
-import useGnattPlot from "./components/GnattPlot";
+import useGanttPlot from "./components/GanttPlot";
+
 import './App.css';
 
 function App() {
+    const {treeData, gnattData, contextMenu, metadata} = useGanttPlot()
 
-    const {treeData, gnattData} = useGnattPlot()
     return (
-        <div className="App" style={{display: "flex", height: 500, overflowY: "auto"}}>
-            <svg height={800} style={{flex: "none", width: 300, backgroundColor: "lightgray"}}>
+        <div className="App" >
+            <div style={{display: "flex", height: 500, overflowY: "auto"}}>
+            <svg height={metadata.height} style={{flex: "none", width: 300, backgroundColor: "lightgray", border: "1px solid black"}}>
                 {treeData}
             </svg>
-            <svg height={800} style={{flex: "auto", backgroundColor: "rgba(0,0,0, 0.2)"}}>
+            <svg height={metadata.height} style={{flex: "auto", border: "1px solid black"}}>
                 {gnattData}
             </svg>
+            </div>
+
+            {contextMenu}
         </div>
     )
 }
