@@ -1,0 +1,12 @@
+
+
+
+.ContextMenu{
+    width: 100px;
+    height: 100px;
+    background-color: green;
+}
+
+.ContextMenu:focus{
+    background-color: red;
+}

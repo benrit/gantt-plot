@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState, MouseEvent} from "react";
 import TreeNodeCSS from "./TreeNode.module.css";
 import useContextMenu from "./useContextMenu";
 
@@ -53,11 +53,7 @@ const TreeNodeSVG = (key: number, x: number, y: number, data: TreeNode_i) => {
     return (
         <g key={key} className={TreeNodeCSS.TreeNode} transform={`translate(${x} ${y})`} onContextMenu={(e) => {
             e.preventDefault();
-            // const temp = createNode("new node", data.parent);
-            // data.parent?.children.splice(data.index + 1, 0, temp);
-            // if (data.update) data.update();
-            console.log(data.setContextMenu(e));
-
+            data.setContextMenu(data);
         }}>
             <rect
                 data-selected={data.isSelected ? "true" : "false"}
@@ -87,6 +83,7 @@ const createNode = (name: string, parent: TreeNode_i | null): TreeNode_i => {
         data: {},
         update: undefined,
         setContextMenu: (event: MouseEvent) => {
+            console.log(event);
         }
     };
 }
@@ -131,13 +128,12 @@ temp.isSelected = true;
 root.children[2].children.push(temp)
 
 export default function useGanttPlot() {
-
-    const {contextMenu, contextMenuFn} = useContextMenu([{name: "bla1"}]);
+    const {showContext, contextMenu} = useContextMenu();
 
     const [entries, setEntries] = useState<{
         treeData: JSX.Element[],
         gnattData: JSX.Element[],
-        contextMenu: JSX.Element | undefined,
+        contextMenu: JSX.Element | undefined | any,
         metadata: any
     }>({
         gnattData: [],
@@ -150,7 +146,7 @@ export default function useGanttPlot() {
         const tempTree: JSX.Element[] = []
         const tempGnatt: JSX.Element[] = []
 
-        const tree = flattenTree(root, update, contextMenuFn);
+        const tree = flattenTree(root, update, (e: MouseEvent<HTMLDivElement>)=>{showContext(e)});
 
         tree.forEach((item, index) => {
             tempTree.push(TreeNodeSVG(index, 5, (index * 50) + 10, item))
@@ -161,7 +157,7 @@ export default function useGanttPlot() {
             return {
                 treeData: tempTree,
                 gnattData: tempGnatt,
-                contextMenu: undefined,
+                contextMenu: contextMenu,
                 metadata: {height: (tree.length * 50) + 50}
             }
         });

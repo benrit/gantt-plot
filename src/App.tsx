@@ -1,6 +1,8 @@
 import useGanttPlot from "./components/GanttPlot";
+import useContextMenu from "./components/useContextMenu";
 
 import './App.css';
+import {useState} from "react";
 
 function App() {
     const {treeData, gnattData, contextMenu, metadata} = useGanttPlot()
@@ -8,14 +10,15 @@ function App() {
     return (
         <div className="App" >
             <div style={{display: "flex", height: 500, overflowY: "auto"}}>
-            <svg height={metadata.height} style={{flex: "none", width: 300, backgroundColor: "lightgray", border: "1px solid black"}}>
+            <svg height={metadata.height}
+                 style={{flex: "none", width: 300, backgroundColor: "lightgray", border: "1px solid black"}}
+            >
                 {treeData}
             </svg>
             <svg height={metadata.height} style={{flex: "auto", border: "1px solid black"}}>
                 {gnattData}
             </svg>
             </div>
-
             {contextMenu}
         </div>
     )
