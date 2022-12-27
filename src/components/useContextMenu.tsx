@@ -5,6 +5,8 @@ import styles from "./ContextMenu.module.css";
 export default function useContextMenu() {
     const contextRef = useRef<any>();
     const [show, setShow] = useState<boolean>(false);
+    const [pos, setPos] = useState({x: 0, y: 0});
+
 
     useEffect(()=>{
         if (contextRef && show)
@@ -15,12 +17,13 @@ export default function useContextMenu() {
 
     return {
         showContext: (event: MouseEvent<HTMLDivElement>)=>{
-            console.log(event);
+            setPos({x: event.clientX, y: event.clientY});
             setShow(true);
         },
         contextMenu :  ( show ?
             <div
                 className={styles.ContextMenu}
+                style={{left: pos.x, top: pos.y}}
                 tabIndex={0}
                 ref={contextRef}
                 onBlur={()=>{
