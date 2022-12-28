@@ -33,18 +33,23 @@ const GanttNodeSVG = (key: number, x: number, y: number, data: TreeNode_i) => {
     )
 }
 
-const ContextMenu = (list: ContextMenuItem_i[], posX: number, posY: number, setContextMenu: Function) => {
-    const MenuRef = useRef<any>();
+
+const TreeExpanderNode = ({data}: {data: TreeNode_i}) => {
+
+    const x = (data.level * 10);
+    const y = 30;
+
     return (
-        <div ref={MenuRef} onBlur={() => {
-            setContextMenu(undefined)
-        }} style={{position: "absolute", backgroundColor: "black", padding: "10px", left: posX, top: posY}}>
-            <ul style={{listStyle: "none"}}>
-                {list.map((item, index) => {
-                    return <li key={index} style={{color: "white"}} onClick={() => item.func()}>{item.name}</li>
-                })}
-            </ul>
-        </div>
+        <g transform={`translate(${x} ${y})`}
+           className={TreeNodeCSS.expander}
+           onClick={()=>{
+            data.isOpen = !data.isOpen;
+            if (data.update) data.update();
+        }}>
+            <rect x={0} y={-12} width={12} height={12} stroke={"black"}/>
+            <line x1={0} x2={12} y1={-6} y2={-6} stroke={"black"}/>
+            {!data.isOpen && <line x1={6} x2={6} y1={0} y2={-12} stroke={"black"}/>}
+        </g>
     )
 }
 
@@ -62,7 +67,7 @@ const TreeNodeSVG = (key: number, x: number, y: number, data: TreeNode_i) => {
                 width={294}
                 height={50}>
             </rect>
-            {data.hasChildren && <text x={data.level * 10} y={30} className={TreeNodeCSS.expander}>+</text>}
+            {data.hasChildren && <TreeExpanderNode data={data}/>}
             <text x={15 + (data.level * 10)} y={30}>{data.name}</text>
             <line x1={0} x2={300} y1={50} y2={50} stroke={"rgba(0,0,0,0.5)"}/>
         </g>
@@ -102,7 +107,7 @@ const flattenTree = (tree: TreeNode_i, updateFn: Function, contextMenu: Function
         tn.setContextMenu = contextMenu;
         temp.push(tn);
 
-        if (hasChildren) {
+        if (hasChildren && tn.isOpen) {
             tn.children.forEach((n, ii) => {
                 iter(n, level + 1, ii);
             })
@@ -128,7 +133,22 @@ temp.isSelected = true;
 root.children[2].children.push(temp)
 
 export default function GanttPlot() {
-    const {showContext, contextMenu} = useContextMenu();
+    const {showContext, contextMenu} = useContextMenu(
+        [{
+            name: "Add below", fn: (d: TreeNode_i) => {
+                d.parent?.children.splice(d.index + 1, 0, createNode(`new node ${d.index}`, d.parent));
+                update();
+            }
+        },
+            {
+                name: "Insert",
+                fn: (d: TreeNode_i) => {
+                    d.children.push(createNode(`new Child ${d.index}`, d));
+                    update();
+                }
+            }
+        ]
+    );
 
     const [entries, setEntries] = useState<{
         treeData: JSX.Element[],
@@ -147,8 +167,7 @@ export default function GanttPlot() {
         const tempGnatt: JSX.Element[] = []
 
         const tree = flattenTree(root, update, (event: MouseEvent<HTMLDivElement>, element: any) => {
-            console.log(event, element);
-            showContext(event);
+            showContext(event, element);
         });
 
         tree.forEach((item, index) => {
