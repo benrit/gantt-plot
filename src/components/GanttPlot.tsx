@@ -13,31 +13,25 @@ interface TreeNode_i {
     children: TreeNode_i[];
     level: number;
     index: number;
-    data: any;
+    data: { start: number, length: number };
     update: Function | undefined;
     setContextMenu: Function;
 }
 
 
-interface ContextMenuItem_i {
-    name: string;
-    func: Function;
-}
-
 const GanttNodeSVG = (key: number, x: number, y: number, data: TreeNode_i) => {
 
     return (
-        <g key={key} className={TreeNodeCSS.TreeNode} transform={`translate(${x} ${y})`}>
+        <g key={key} transform={`translate(${x} ${y})`}>
+            <rect x={data.data.start} y={10} width={data.data.length} height={30} stroke={"green"} fill={"lightblue"}/>
             <line x1={-3} x2={"100%"} y1={50} y2={50} stroke={"rgba(0,0,0,0.5)"}/>
         </g>
     )
 }
 
-
 const TreeExpanderNode = ({data}: {data: TreeNode_i}) => {
-
     const x = (data.level * 10);
-    const y = 30;
+    const y = 18;
 
     return (
         <g transform={`translate(${x} ${y})`}
@@ -46,9 +40,9 @@ const TreeExpanderNode = ({data}: {data: TreeNode_i}) => {
             data.isOpen = !data.isOpen;
             if (data.update) data.update();
         }}>
-            <rect x={0} y={-12} width={12} height={12} stroke={"black"}/>
-            <line x1={0} x2={12} y1={-6} y2={-6} stroke={"black"}/>
-            {!data.isOpen && <line x1={6} x2={6} y1={0} y2={-12} stroke={"black"}/>}
+            <rect x={0} y={0} width={12} height={12} stroke={"black"}/>
+            <line x1={0} x2={12} y1={6} y2={6} stroke={"black"}/>
+            {!data.isOpen && <line x1={6} x2={6} y1={0} y2={12} stroke={"black"}/>}
         </g>
     )
 }
@@ -85,7 +79,7 @@ const createNode = (name: string, parent: TreeNode_i | null): TreeNode_i => {
         children: [],
         index: 0,
         level: 0,
-        data: {},
+        data: {start: 100, length: 100},
         update: undefined,
         setContextMenu: (event: MouseEvent) => {
             console.log(event);
