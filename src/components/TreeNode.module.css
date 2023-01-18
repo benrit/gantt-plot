@@ -4,15 +4,15 @@
 
 
 
-.TreeNode rect{
-    fill: rgba(0,0,255,0.0);
-}
+/*.TreeNode rect:first-child{*/
+/*    fill: hsl(50, 100%, 100%);*/
+/*}*/
 
 
-.TreeNode:hover rect{
-    stroke: rgba(0,0,0, 1);
+.TreeNode:hover #border{
+    stroke: rgba(0,0,0, 0.2);
 }
 
 .TreeNode [data-selected="true"]{
-    fill: rgba(0,0,0, 0.1);
+    /*fill: rgba(0,0,0, 0.1);*/
 }

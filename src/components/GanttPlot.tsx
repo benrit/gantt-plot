@@ -13,9 +13,10 @@ interface TreeNode_i {
     children: TreeNode_i[];
     level: number;
     index: number;
-    data: { start: number, length: number };
+    data: { start: number, length: number, color: string};
     update: Function | undefined;
     setContextMenu: Function;
+    color?: string;
 }
 
 
@@ -23,7 +24,7 @@ const GanttNodeSVG = (key: number, x: number, y: number, data: TreeNode_i) => {
 
     return (
         <g key={key} transform={`translate(${x} ${y})`}>
-            <rect x={data.data.start} y={10} width={data.data.length} height={30} stroke={"green"} fill={"lightblue"}/>
+            <rect x={data.data.start} y={10} width={data.data.length} height={30} stroke={"green"} fill={data.data.color}/>
             <line x1={-3} x2={"100%"} y1={50} y2={50} stroke={"rgba(0,0,0,0.5)"}/>
         </g>
     )
@@ -40,7 +41,7 @@ const TreeExpanderNode = ({data}: {data: TreeNode_i}) => {
             data.isOpen = !data.isOpen;
             if (data.update) data.update();
         }}>
-            <rect x={0} y={0} width={12} height={12} stroke={"black"}/>
+            <rect x={0} y={0} width={12} height={12} stroke={"black"} fill={"rgba(0,0,0,0.05)"}/>
             <line x1={0} x2={12} y1={6} y2={6} stroke={"black"}/>
             {!data.isOpen && <line x1={6} x2={6} y1={0} y2={12} stroke={"black"}/>}
         </g>
@@ -50,25 +51,32 @@ const TreeExpanderNode = ({data}: {data: TreeNode_i}) => {
 const TreeNodeSVG = (key: number, x: number, y: number, data: TreeNode_i) => {
 
     return (
-        <g key={key} className={TreeNodeCSS.TreeNode} transform={`translate(${x} ${y})`} onContextMenu={(e) => {
+        <g key={key}
+           className={TreeNodeCSS.TreeNode}
+           transform={`translate(${x} ${y})`}
+           onContextMenu={(e) => {
             e.preventDefault();
-            data.setContextMenu(e, data);
-        }}>
+            data.setContextMenu(e, data);}}
+           onDoubleClick={()=>{console.log("blabla")}}
+        >
             <rect
                 data-selected={data.isSelected ? "true" : "false"}
                 x="0"
                 y="0"
                 width={294}
-                height={50}>
+                height={50}
+                fill={`hsl(${data.index * 60}, 100%, 50%, ${(data.level*0.1)+0.1})`}
+            >
             </rect>
             {data.hasChildren && <TreeExpanderNode data={data}/>}
             <text x={15 + (data.level * 10)} y={30}>{data.name}</text>
             <line x1={0} x2={300} y1={50} y2={50} stroke={"rgba(0,0,0,0.5)"}/>
+            <rect x={0} y={-3} width={294} height={6} fill={"rgba(100,100,100, 1)"} onMouseEnter={()=>{console.log("[ENTER]")}}/>
         </g>
     )
 }
 
-const createNode = (name: string, parent: TreeNode_i | null): TreeNode_i => {
+export const createNode = (name: string, parent: TreeNode_i | null): TreeNode_i => {
     return {
         name: name,
         parent: parent,
@@ -79,7 +87,7 @@ const createNode = (name: string, parent: TreeNode_i | null): TreeNode_i => {
         children: [],
         index: 0,
         level: 0,
-        data: {start: 100, length: 100},
+        data: {start: 100, length: 100, color: "red"},
         update: undefined,
         setContextMenu: (event: MouseEvent) => {
             console.log(event);
@@ -116,17 +124,8 @@ const flattenTree = (tree: TreeNode_i, updateFn: Function, contextMenu: Function
 }
 
 
-const root = createNode("root", null);
 
-for (let i = 0; i < 10; ++i) {
-    root.children.push(createNode(`Node${i}`, root))
-}
-
-const temp = createNode("Node51", root.children[2])
-temp.isSelected = true;
-root.children[2].children.push(temp)
-
-export default function GanttPlot() {
+export default function GanttPlot({data, dataManager}: {data: any, dataManager: any}) {
     const {showContext, contextMenu} = useContextMenu(
         [{
             name: "Add below", fn: (d: TreeNode_i) => {
@@ -144,6 +143,8 @@ export default function GanttPlot() {
         ]
     );
 
+    dataManager.insert("hello");
+
     const [entries, setEntries] = useState<{
         treeData: JSX.Element[],
         gnattData: JSX.Element[],
@@ -160,7 +161,7 @@ export default function GanttPlot() {
         const tempTree: JSX.Element[] = []
         const tempGnatt: JSX.Element[] = []
 
-        const tree = flattenTree(root, update, (event: MouseEvent<HTMLDivElement>, element: any) => {
+        const tree = flattenTree(data, update, (event: MouseEvent<HTMLDivElement>, element: any) => {
             showContext(event, element);
         });
 
